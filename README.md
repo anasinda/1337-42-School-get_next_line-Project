@@ -2,7 +2,7 @@
 
 [![1337](https://img.shields.io/badge/1337-000000?style=for-the-badge&logoColor=white)](https://www.1337.ma/)
 [![UM6P](https://img.shields.io/badge/UM6P-C1392B?style=for-the-badge)](https://um6p.ma/)
-[![42 Badge](https://img.shields.io/badge/get__next__line-00babc?style=for-the-badge&logo=42)](https://42.fr) [![C](https://img.shields.io/badge/programming-00599C?style=for-the-badge&logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language)) [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.kernel.org/)
+[![42 Badge](https://img.shields.io/badge/get__next__line-00babc?style=for-the-badge&logo=42)](https://42.fr) [![C](https://img.shields.io/badge/programming-00599C?style=for-the-badge&logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language)) [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://www.kernel.org/) [![Makefile](https://img.shields.io/badge/Makefile-2C2D30?style=for-the-badge)](https://www.gnu.org/software/make/)
 
 The implementation of a function that reads and returns a single line from a file descriptor, handling repeated calls to read an entire file line by line.
 
@@ -80,21 +80,45 @@ The bonus version uses a static array `stash[1024]` to maintain separate stashes
 
 ## Build & usage
 
-### Compilation
+### Using the Makefile
 
-Include the source files in your project and compile with your desired `BUFFER_SIZE`:
+The project includes a Makefile for easy compilation:
 
 ```bash
-cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c your_main.c -o your_program
+# Build the mandatory version
+make
+
+# Build the bonus version (multi-fd support)
+make bonus
+
+# Clean compiled binaries
+make clean
+
+# Rebuild from scratch
+make re
+```
+
+This will create:
+- `program` — mandatory version executable
+- `program_bonus` — bonus version executable
+
+### Manual Compilation
+
+Alternatively, compile manually with a custom `BUFFER_SIZE`:
+
+```bash
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 src/get_next_line.c src/get_next_line_utils.c src/main.c -o program
 ```
 
 For the bonus (multiple fd support):
 
 ```bash
-cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line_bonus.c get_next_line_utils_bonus.c your_main.c -o your_program
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 src_bonus/get_next_line_bonus.c src_bonus/get_next_line_utils_bonus.c src_bonus/main_bonus.c -o program_bonus
 ```
 
 ### Example usage
+
+Add your test code to `src/main.c` (or `src_bonus/main_bonus.c` for bonus):
 
 ```c
 #include "get_next_line.h"
@@ -117,6 +141,12 @@ int main(void)
     close(fd);
     return (0);
 }
+```
+
+Then compile and run:
+
+```bash
+make && ./program
 ```
 
 ### Reading from stdin
@@ -165,13 +195,19 @@ Default value in this implementation: **1337**
 
 ```
 get_next_line/
-├── get_next_line.c          # Main implementation
-├── get_next_line.h          # Header file
-├── get_next_line_utils.c    # Utility functions
-├── get_next_line_bonus.c    # Multi-fd implementation
-├── get_next_line_bonus.h    # Bonus header file
-├── get_next_line_utils_bonus.c  # Bonus utilities
-└── README.md
+├── Makefile                      # Build automation
+├── README.md
+├── LICENSE
+├── src/                          # Mandatory implementation
+│   ├── get_next_line.c           # Main implementation
+│   ├── get_next_line.h           # Header file
+│   ├── get_next_line_utils.c     # Utility functions
+│   └── main.c                    # Test entry point
+└── src_bonus/                    # Bonus implementation (multi-fd)
+    ├── get_next_line_bonus.c     # Multi-fd implementation
+    ├── get_next_line_bonus.h     # Bonus header file
+    ├── get_next_line_utils_bonus.c   # Bonus utilities
+    └── main_bonus.c              # Bonus test entry point
 ```
 
 --------------------------------------------------------------------------------
@@ -182,7 +218,7 @@ Create a test file and run your program:
 
 ```bash
 echo -e "Line 1\nLine 2\nLine 3" > test.txt
-./your_program test.txt
+make && ./program
 ```
 
 Test with different buffer sizes:
@@ -190,9 +226,15 @@ Test with different buffer sizes:
 ```bash
 for size in 1 10 42 1000 10000; do
     echo "Testing BUFFER_SIZE=$size"
-    cc -D BUFFER_SIZE=$size get_next_line.c get_next_line_utils.c main.c -o test_gnl
-    ./test_gnl test.txt
+    cc -D BUFFER_SIZE=$size src/get_next_line.c src/get_next_line_utils.c src/main.c -o test_gnl
+    ./test_gnl
 done
+```
+
+Test the bonus version:
+
+```bash
+make bonus && ./program_bonus
 ```
 
 --------------------------------------------------------------------------------
